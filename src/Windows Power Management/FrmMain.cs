@@ -95,13 +95,13 @@ namespace Windows_Power_Management
 
       public FrmMain()
       {
-         InitializeComponent();
+         this.InitializeComponent();
       }
 
       private void buttonLogOff_Click(object sender, EventArgs e)
       {
          NativeMethods.GetPrivileges();
-         NativeMethods.ExitWindowsEx(EWX_LOGOFF | 0, 0);
+         NativeMethods.ExitWindowsEx(EWX_LOGOFF | (uint)(this.checkBoxForce.Checked ? EWX_FORCE : 0), 0);
       }
 
       private void buttonSleep_Click(object sender, EventArgs e)
@@ -112,13 +112,13 @@ namespace Windows_Power_Management
       private void buttonShutdown_Click(object sender, EventArgs e)
       {
          NativeMethods.GetPrivileges();
-         NativeMethods.ExitWindowsEx(EWX_SHUTDOWN | 0 | EWX_POWEROFF, 0);
+         NativeMethods.ExitWindowsEx(EWX_SHUTDOWN | (uint)(this.checkBoxForce.Checked ? EWX_FORCE : 0) | EWX_POWEROFF, 0);
       }
 
       private void buttonReboot_Click(object sender, EventArgs e)
       {
          NativeMethods.GetPrivileges();
-         NativeMethods.ExitWindowsEx(EWX_REBOOT | 0, 0);
+         NativeMethods.ExitWindowsEx(EWX_REBOOT | (uint)(this.checkBoxForce.Checked ? EWX_FORCE : 0), 0);
       }
    }
 }

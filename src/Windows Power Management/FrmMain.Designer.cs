@@ -53,6 +53,7 @@ namespace Windows_Power_Management
          this.buttonSleep = new System.Windows.Forms.Button();
          this.buttonShutdown = new System.Windows.Forms.Button();
          this.buttonReboot = new System.Windows.Forms.Button();
+         this.checkBoxForce = new System.Windows.Forms.CheckBox();
          this.SuspendLayout();
          // 
          // buttonLogOff
@@ -95,21 +96,35 @@ namespace Windows_Power_Management
          this.buttonReboot.UseVisualStyleBackColor = true;
          this.buttonReboot.Click += new System.EventHandler(this.buttonReboot_Click);
          // 
+         // checkBoxForce
+         // 
+         this.checkBoxForce.AutoSize = true;
+         this.checkBoxForce.Location = new System.Drawing.Point(231, 79);
+         this.checkBoxForce.Name = "checkBoxForce";
+         this.checkBoxForce.Size = new System.Drawing.Size(75, 19);
+         this.checkBoxForce.TabIndex = 4;
+         this.checkBoxForce.Text = "強制モード";
+         this.checkBoxForce.UseVisualStyleBackColor = true;
+         // 
          // FrmMain
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-         this.ClientSize = new System.Drawing.Size(539, 75);
+         this.ClientSize = new System.Drawing.Size(539, 116);
+         this.Controls.Add(this.checkBoxForce);
          this.Controls.Add(this.buttonReboot);
          this.Controls.Add(this.buttonShutdown);
          this.Controls.Add(this.buttonSleep);
          this.Controls.Add(this.buttonLogOff);
-         this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+         this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+         this.MaximizeBox = false;
+         this.MinimizeBox = false;
          this.Name = "FrmMain";
          this.Padding = new System.Windows.Forms.Padding(15);
          this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
          this.Text = "Windows Power Management - Testing";
          this.ResumeLayout(false);
+         this.PerformLayout();
 
     }
 
@@ -119,6 +134,7 @@ namespace Windows_Power_Management
     private System.Windows.Forms.Button buttonSleep;
     private System.Windows.Forms.Button buttonShutdown;
     private System.Windows.Forms.Button buttonReboot;
-  }
+      private System.Windows.Forms.CheckBox checkBoxForce;
+   }
 }
 
