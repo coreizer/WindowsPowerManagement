@@ -28,55 +28,61 @@ namespace Windows_Power_Management
 
    public partial class FrmMain : Form
    {
-      // Thanks https://miromannino.com/blog/exitwindowsex-in-c/
-      private class ExitWindows
+      // thanks: https://miromannino.com/blog/exitwindowsex-in-c/
+
+      private const string SE_SHUTDOWN_NAME = "SeShutdownPrivilege";
+
+      private const short SE_PRIVILEGE_ENABLED = 2;
+      private const short TOKEN_ADJUST_PRIVILEGES = 32;
+      private const short TOKEN_QUERY = 8;
+
+      private const ushort EWX_LOGOFF = 0;
+      private const ushort EWX_POWEROFF = 0x00000008;
+      private const ushort EWX_REBOOT = 0x00000002;
+      private const ushort EWX_SHUTDOWN = 0x00000001;
+      private const ushort EWX_FORCE = 0x00000004;
+
+      private static class NativeMethods
       {
-         private const string SE_SHUTDOWN_NAME = "SeShutdownPrivilege";
-         private const short SE_PRIVILEGE_ENABLED = 2;
-         private const short TOKEN_ADJUST_PRIVILEGES = 32;
-         private const short TOKEN_QUERY = 8;
+         #region Import DLL
 
-         private const ushort EWX_LOGOFF = 0;
-         private const ushort EWX_POWEROFF = 0x00000008;
-         private const ushort EWX_REBOOT = 0x00000002;
-         private const ushort EWX_SHUTDOWN = 0x00000001;
-         private const ushort EWX_FORCE = 0x00000004;
+         [DllImport("advapi32.dll")]
+         internal static extern int OpenProcessToken(IntPtr ProcessHandle, int DesiredAccess, out IntPtr TokenHandle);
 
-         private struct LUID
+         [DllImport("advapi32.dll")]
+         internal static extern int LookupPrivilegeValue(string lpSystemName, string lpName, out LUID lpLuid);
+
+         [DllImport("advapi32.dll", SetLastError = true)]
+         [return: MarshalAs(UnmanagedType.Bool)]
+         internal static extern bool AdjustTokenPrivileges(IntPtr TokenHandle, [MarshalAs(UnmanagedType.Bool)] bool DisableAllPrivileges, ref TOKEN_PRIVILEGES NewState, uint BufferLength, IntPtr PreviousState, IntPtr ReturnLength);
+
+         [DllImport("user32.dll", SetLastError = true)]
+         internal static extern int ExitWindowsEx(uint uFlags, uint dwReason);
+
+         [DllImport("user32.dll", SetLastError = true)]
+         internal static extern bool LockWorkStation();
+
+         #endregion
+
+         internal struct LUID
          {
             public uint LowPart;
             public uint HighPart;
          }
 
-         private struct LUID_AND_ATTRIBUTES
+         internal struct LUID_AND_ATTRIBUTES
          {
             public LUID Luid;
             public uint Attributes;
          }
 
-         private struct TOKEN_PRIVILEGES
+         internal struct TOKEN_PRIVILEGES
          {
             public int PrivilegeCount;
             public LUID_AND_ATTRIBUTES Privileges;
          }
 
-         [DllImport("advapi32.dll")]
-         static extern int OpenProcessToken(IntPtr ProcessHandle, int DesiredAccess, out IntPtr TokenHandle);
-
-         [DllImport("advapi32.dll")]
-         static extern int LookupPrivilegeValue(string lpSystemName, string lpName, out LUID lpLuid);
-
-         [DllImport("advapi32.dll", SetLastError = true)]
-         [return: MarshalAs(UnmanagedType.Bool)]
-         static extern bool AdjustTokenPrivileges(IntPtr TokenHandle, [MarshalAs(UnmanagedType.Bool)] bool DisableAllPrivileges, ref TOKEN_PRIVILEGES NewState, uint BufferLength, IntPtr PreviousState, IntPtr ReturnLength);
-
-         [DllImport("user32.dll", SetLastError = true)]
-         static extern int ExitWindowsEx(uint uFlags, uint dwReason);
-
-         [DllImport("user32.dll", SetLastError = true)]
-         static extern bool LockWorkStation();
-
-         private static void GetPrivileges()
+         internal static void GetPrivileges()
          {
             TOKEN_PRIVILEGES token;
             OpenProcessToken(Process.GetCurrentProcess().Handle, TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, out var hToken);
@@ -84,44 +90,6 @@ namespace Windows_Power_Management
             token.Privileges.Attributes = (uint)SE_PRIVILEGE_ENABLED;
             LookupPrivilegeValue("", SE_SHUTDOWN_NAME, out token.Privileges.Luid);
             AdjustTokenPrivileges(hToken, false, ref token, 0U, IntPtr.Zero, IntPtr.Zero);
-         }
-
-         public static void Shutdown()
-         {
-            Shutdown(false);
-         }
-
-         public static void Shutdown(bool force)
-         {
-            GetPrivileges();
-            ExitWindowsEx(EWX_SHUTDOWN | (uint)(force ? EWX_FORCE : 0) | EWX_POWEROFF, 0);
-         }
-
-         public static void Reboot()
-         {
-            Reboot(false);
-         }
-
-         public static void Reboot(bool force)
-         {
-            GetPrivileges();
-            ExitWindowsEx(EWX_REBOOT | (uint)(force ? EWX_FORCE : 0), 0);
-         }
-
-         public static void LogOff()
-         {
-            LogOff(false);
-         }
-
-         public static void LogOff(bool force)
-         {
-            GetPrivileges();
-            ExitWindowsEx(EWX_LOGOFF | (uint)(force ? EWX_FORCE : 0), 0);
-         }
-
-         public static void Sleep()
-         {
-            LockWorkStation();
          }
       }
 
@@ -132,22 +100,25 @@ namespace Windows_Power_Management
 
       private void buttonLogOff_Click(object sender, EventArgs e)
       {
-         ExitWindows.LogOff();
+         NativeMethods.GetPrivileges();
+         NativeMethods.ExitWindowsEx(EWX_LOGOFF | 0, 0);
       }
 
       private void buttonSleep_Click(object sender, EventArgs e)
       {
-         ExitWindows.Sleep();
+         NativeMethods.LockWorkStation();
       }
 
       private void buttonShutdown_Click(object sender, EventArgs e)
       {
-         ExitWindows.Shutdown();
+         NativeMethods.GetPrivileges();
+         NativeMethods.ExitWindowsEx(EWX_SHUTDOWN | 0 | EWX_POWEROFF, 0);
       }
 
       private void buttonReboot_Click(object sender, EventArgs e)
       {
-         ExitWindows.Reboot();
+         NativeMethods.GetPrivileges();
+         NativeMethods.ExitWindowsEx(EWX_REBOOT | 0, 0);
       }
    }
 }
