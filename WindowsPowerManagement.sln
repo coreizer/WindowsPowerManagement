@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31025.194
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Windows Power Management", "src\Windows Power Management\Windows Power Management.csproj", "{DAD5FA04-B4EC-41F9-8477-6331676E25E0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Windows Power Management", "src\Windows Power Management.csproj", "{DAD5FA04-B4EC-41F9-8477-6331676E25E0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
